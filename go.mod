@@ -1,4 +1,4 @@
-module github.com/Terramorpha/uul
+module github.com/Terramorpha/ull
 
 go 1.13
 
