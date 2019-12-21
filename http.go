@@ -30,6 +30,9 @@ func (n Node) json() string {
 	return string(b)
 }
 
+//173.178.130.146
+const YourIp = "/ip4/173.178.130.146/tcp/4001"
+
 func LinkedList(sh *ipfs.Shell, lastHash string) func(w http.ResponseWriter, r *http.Request) {
 	m := sync.Mutex{}
 	var top *string = nil
@@ -49,10 +52,19 @@ func LinkedList(sh *ipfs.Shell, lastHash string) func(w http.ResponseWriter, r *
 		case "GET":
 			m.Lock()
 			defer m.Unlock()
+
+			id, err := sh.ID()
+			if err != nil {
+				panic(err)
+			}
+			addr := fmt.Sprintf("%s/ipfs/%s", YourIp, id.ID)
+
 			enc := json.NewEncoder(w)
 			enc.Encode(struct {
 				Hash *string `json:"hash"`
-			}{Hash: top})
+				Addr *string `json:"address"`
+			}{Hash: top, Addr: &addr})
+
 		case "POST":
 			m.Lock()
 			defer m.Unlock()
