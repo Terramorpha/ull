@@ -31,7 +31,7 @@ func (n Node) json() string {
 }
 
 //173.178.130.146
-const YourIp = "/ip4/173.178.130.146/tcp/4001"
+var YourIp = "/dns/terramorpha.tech/173.178.130.146/tcp/4001"
 
 func LinkedList(sh *ipfs.Shell, lastHash string) func(w http.ResponseWriter, r *http.Request) {
 	m := sync.Mutex{}
