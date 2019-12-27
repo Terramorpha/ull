@@ -13,7 +13,7 @@ import (
 )
 
 type Node struct {
-	Items []Item  `json:"items"`
+	Items string  `json:"items"`
 	Next  *string `json:"next"`
 }
 
@@ -22,16 +22,22 @@ type Item struct {
 	Data interface{} `json:"data"`
 }
 
-func (n Node) json() string {
-	b, err := json.Marshal(n)
+func toJson(v interface{}) string {
+	b, err := json.Marshal(v)
 	if err != nil {
 		panic(err)
 	}
 	return string(b)
 }
 
+func (n Node) json() string {
+	return toJson(n)
+}
+
 //173.178.130.146
 var YourIp = "/dns/terramorpha.tech/tcp/4001"
+
+const kind = "dag-cbor"
 
 func LinkedList(sh *ipfs.Shell, lastHash string) func(w http.ResponseWriter, r *http.Request) {
 	m := sync.Mutex{}
@@ -75,11 +81,17 @@ func LinkedList(sh *ipfs.Shell, lastHash string) func(w http.ResponseWriter, r *
 				w.WriteHeader(http.StatusBadRequest)
 				return
 			}
+			//put in dag the list
+			itemsHash, err := sh.DagPut(toJson(content), "json", kind)
+			if err != nil {
+				panic(err)
+			}
+
 			//fmt.Printf("content: %#v\n", content)
 			o := Node{
-				Items: content, Next: top,
+				Items: itemsHash, Next: top,
 			}
-			h, err := sh.DagPut(o.json(), "json", "dag-cbor")
+			h, err := sh.DagPut(o.json(), "json", kind)
 			if err != nil {
 				panic(err)
 			}
